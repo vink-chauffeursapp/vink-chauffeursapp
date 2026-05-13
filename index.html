@@ -114,26 +114,26 @@
   <span style="font-size:10px;color:#2a2a2a;opacity:0.5;margin-left:6px;">v3.5</span>
 </div>
 
-<!-- INLOGGEN (naam + pin op één scherm) -->
-<div class="screen active" id="screen-register">
-  <div style="padding-top:32px;text-align:center;margin-bottom:24px;">
-    <p style="font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">Inloggen</p>
-    <p style="font-size:14px;color:#666;">Vul je naam en pincode in</p>
-    <p style="font-size:11px;color:#bbb;margin-top:4px;">Versie 3.5 · Mei 2026</p>
+<!-- INLOGGEN: naam + pin op één scrollbaar scherm -->
+<div class="screen active" id="screen-register" style="overflow-y:auto;max-height:calc(100vh - 60px);padding-bottom:32px;">
+  <div style="padding-top:20px;text-align:center;margin-bottom:16px;">
+    <p style="font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">Inloggen</p>
+    <p style="font-size:13px;color:#666;">Vul je naam en pincode in</p>
+    <p style="font-size:11px;color:#bbb;margin-top:2px;">Versie 3.5 · Mei 2026</p>
   </div>
   <div class="form-group">
     <label class="form-label">Jouw naam</label>
-    <input type="text" id="reg-naam" placeholder="Jan de Vries" style="font-size:18px;padding:14px;" />
+    <input type="text" id="reg-naam" placeholder="Jan de Vries" style="font-size:16px;padding:12px;" autocomplete="name" />
   </div>
-  <div class="form-group" style="margin-top:16px;">
+  <div class="form-group" style="margin-top:12px;">
     <label class="form-label">Pincode</label>
-    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:12px;">
+    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:10px;">
       <div id="dot-1" style="width:16px;height:16px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:all 0.15s;"></div>
       <div id="dot-2" style="width:16px;height:16px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:all 0.15s;"></div>
       <div id="dot-3" style="width:16px;height:16px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:all 0.15s;"></div>
       <div id="dot-4" style="width:16px;height:16px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:all 0.15s;"></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto;">
       <button class="pin-btn" onclick="pinDruk('1')">1</button>
       <button class="pin-btn" onclick="pinDruk('2')">2</button>
       <button class="pin-btn" onclick="pinDruk('3')">3</button>
@@ -148,15 +148,15 @@
       <button class="pin-btn" onclick="pinTerug()" style="font-size:18px;background:#f3f4f6;">←</button>
     </div>
   </div>
-  <div class="fout-box" id="naam-fout" style="display:none;">Naam of pincode onjuist. Probeer opnieuw.</div>
-  <div class="fout-box" id="pin-fout" style="display:none;">Naam of pincode onjuist. Probeer opnieuw.</div>
-  <div class="fout-box" id="pin-blokkeer" style="display:none;">Te veel foute pogingen. Wacht 5 minuten.</div>
+  <div class="fout-box" id="naam-fout" style="display:none;margin-top:8px;">Naam of pincode onjuist.</div>
+  <div class="fout-box" id="pin-fout" style="display:none;margin-top:8px;">Naam of pincode onjuist.</div>
+  <div class="fout-box" id="pin-blokkeer" style="display:none;margin-top:8px;">Te veel foute pogingen. Wacht 5 minuten.</div>
   <div class="loader" id="loader-naam" style="display:none;">Inloggen... ⏳</div>
   <div class="loader" id="pin-laden" style="display:none;">Ritten ophalen... ⏳</div>
-  <button class="btn btn-primary" id="btn-naam" onclick="controleerInloggen()" style="margin-top:16px;">Inloggen →</button>
+  <button class="btn btn-primary" id="btn-naam" onclick="controleerInloggen()" style="margin-top:12px;">Inloggen →</button>
 </div>
 
-<!-- SCHERM-PIN blijft leeg voor compatibiliteit -->
+<!-- leeg scherm voor compatibiliteit -->
 <div class="screen" id="screen-pin" style="display:none;">
   <div id="pin-naam-label"></div>
   <div id="pin-avatar"></div>
@@ -495,7 +495,9 @@ function haalRittenOp(naam, callback) {
 }
 
 // ── Login: naam ───────────────────────────────────────────
-function controleerNaam() { controleerInloggen(); } // backwards compat
+// ── Login: naam + pin in één aanroep ─────────────────────
+function controleerNaam() { controleerInloggen(); }
+function controleerNaamStap() { controleerInloggen(); }
 
 function controleerInloggen() {
   var naam = document.getElementById('reg-naam').value.trim();
@@ -508,19 +510,16 @@ function controleerInloggen() {
   document.getElementById('btn-naam').disabled = true;
   document.getElementById('loader-naam').style.display = 'block';
 
-  // Één aanroep voor naam + pin
   fetch(SCRIPT_URL + '?type=inloggen&naam=' + encodeURIComponent(naam) + '&pin=' + encodeURIComponent(loginPin))
     .then(function(r) { return r.json(); })
     .then(function(resp) {
       document.getElementById('btn-naam').disabled = false;
       document.getElementById('loader-naam').style.display = 'none';
-
       if (resp.status === 'ok') {
         pinPogingen = 0;
         loginNaam = naam;
         user = { naam: naam, tel: resp.telefoon || '' };
         opslaanZet('vink_user', JSON.stringify(user));
-        document.getElementById('loader-naam').style.display = 'none';
         document.getElementById('pin-laden').style.display = 'block';
         haalRittenOp(naam, function() {
           document.getElementById('pin-laden').style.display = 'none';
@@ -535,7 +534,6 @@ function controleerInloggen() {
         if (pinPogingen >= 3) {
           pinGeblokkeerd = true;
           document.getElementById('pin-blokkeer').style.display = 'block';
-          document.getElementById('naam-fout').style.display = 'none';
           setTimeout(function() {
             pinGeblokkeerd = false; pinPogingen = 0;
             document.getElementById('pin-blokkeer').style.display = 'none';
@@ -574,7 +572,43 @@ function updatePinDots() {
     dot.style.borderColor = i <= loginPin.length ? '#F5C000' : '#d1d5db';
   }
 }
-// controleerPin vervangen door controleerInloggen
+function controleerPin() {
+  if (pinGeblokkeerd) return;
+  fetch(SCRIPT_URL + '?type=controleer_pin&naam=' + encodeURIComponent(loginNaam) + '&pin=' + encodeURIComponent(loginPin))
+    .then(function(r) { return r.json(); })
+    .then(function(resp) {
+      if (resp.correct) {
+        pinPogingen = 0;
+        user = { naam: loginNaam, tel: resp.telefoon || '' };
+        opslaanZet('vink_user', JSON.stringify(user));
+        document.getElementById('pin-fout').style.display = 'none';
+        document.getElementById('pin-blokkeer').style.display = 'none';
+        document.getElementById('pin-laden').style.display = 'block';
+        haalRittenOp(loginNaam, function() {
+          document.getElementById('pin-laden').style.display = 'none';
+          initUser();
+          document.getElementById('bottom-nav').style.display = 'flex';
+          goScreen('screen-home');
+        });
+      } else {
+        pinPogingen++;
+        loginPin = '';
+        updatePinDots();
+        if (pinPogingen >= 3) {
+          pinGeblokkeerd = true;
+          document.getElementById('pin-fout').style.display = 'none';
+          document.getElementById('pin-blokkeer').style.display = 'block';
+          setTimeout(function() {
+            pinGeblokkeerd = false; pinPogingen = 0;
+            document.getElementById('pin-blokkeer').style.display = 'none';
+          }, 5 * 60 * 1000);
+        } else {
+          document.getElementById('pin-fout').style.display = 'block';
+        }
+      }
+    })
+    .catch(function() { alert('Geen verbinding.'); });
+}
 
 // ── User init ─────────────────────────────────────────────
 function initUser() {
