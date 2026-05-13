@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vink Ritten">
+<title>Vink Kunststoffen — Ritregistratie</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f3f4f6; min-height: 100vh; }
+  .app-header { background: #F5C000; padding: calc(10px + env(safe-area-inset-top)) 16px 14px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .app-header img { height: 30px; width: auto; }
+  .app-header-sub { margin-left: auto; font-size: 12px; color: #2a2a2a; font-weight: 600; opacity: 0.7; }
+  .screen { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
+  .screen.active { display: block; }
+  .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .welcome-card { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; background: #FEF3C0; color: #92400e; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+  .section-label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 6px; }
+  .scan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+  .scan-card { background: white; border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-top: 4px solid #1a1a1a; }
+  .scan-card:active { transform: scale(0.97); }
+  .scan-icon { width: 48px; height: 48px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 22px; }
+  .scan-card-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+  .scan-card-sub { font-size: 11px; color: #888; }
+  .active-banner { background: #dcfce7; border: 1px solid #86efac; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .pulse { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+  .info-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .info-row { padding: 11px 14px; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 10px; }
+  .info-row:last-child { border-bottom: none; }
+  input[type=text], input[type=number], input[type=email], input[type=tel], textarea, select {
+    width: 100%; padding: 11px 13px; border: 1px solid #e5e7eb; border-radius: 8px;
+    font-size: 15px; font-family: inherit; color: #1a1a1a; background: white;
+    -webkit-appearance: none; appearance: none;
+  }
+  input:focus, textarea:focus { outline: none; border-color: #F5C000; box-shadow: 0 0 0 3px rgba(245,192,0,0.15); }
+  textarea { resize: none; height: 76px; line-height: 1.5; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; color: #666; margin-bottom: 5px; display: block; font-weight: 500; }
+  .field-card { background: white; border-radius: 12px; padding: 13px 14px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .field-card-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .field-card input { border: none; padding: 0; font-size: 22px; font-weight: 600; color: #1a1a1a; background: transparent; width: 100%; outline: none; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; font-family: inherit; }
+  .btn-primary { background: #F5C000; color: #1a1a1a; }
+  .btn-primary:active { opacity: 0.88; }
+  .btn-secondary { background: white; color: #1a1a1a; border: 1.5px solid #F5C000; }
+  .btn-danger { background: white; color: #dc2626; border: 1.5px solid #dc2626; }
+  .btn:disabled { opacity: 0.5; }
+  .truck-sel { display: flex; align-items: center; gap: 10px; background: white; border-radius: 10px; padding: 11px 13px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .search-wrap { position: relative; margin-bottom: 10px; }
+  .search-wrap input { padding-left: 36px; }
+  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 16px; }
+  .truck-list { max-height: 420px; overflow-y: auto; }
+  .truck-item { background: white; border-radius: 10px; padding: 11px 14px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+  .truck-item:active { background: #fffbeb; }
+  .truck-nr { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .truck-plate { font-size: 12px; color: #888; font-family: monospace; }
+  .accordion { background: white; border-radius: 12px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .accordion.has-items { border: 1.5px solid #F5C000; }
+  .accordion-header { display: flex; align-items: center; justify-content: space-between; padding: 14px; cursor: pointer; }
+  .accordion.has-items .accordion-header { background: #fffbeb; }
+  .accordion-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .acc-count { background: #F5C000; color: #1a1a1a; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; display: none; }
+  .accordion.has-items .acc-count { display: inline; }
+  .acc-chevron { transition: transform 0.2s; font-size: 14px; color: #888; }
+  .accordion.open .acc-chevron { transform: rotate(180deg); }
+  .accordion-body { display: none; padding: 0 14px 12px; border-top: 1px solid #f3f4f6; }
+  .accordion.open .accordion-body { display: block; }
+  .cb-list { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; }
+  .cb-item { display: flex; align-items: center; gap: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 11px 12px; cursor: pointer; }
+  .cb-item.selected { border-color: #F5C000; background: #fffbeb; }
+  .cb-box { width: 20px; height: 20px; border-radius: 4px; border: 1.5px solid #d1d5db; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+  .cb-item.selected .cb-box { background: #F5C000; border-color: #F5C000; }
+  .cb-label { font-size: 14px; color: #1a1a1a; }
+  .success-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; text-align: center; padding: 24px; }
+  .success-icon { width: 72px; height: 72px; border-radius: 50%; background: #FEF3C0; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 32px; }
+  .summary-card { width: 100%; background: white; border-radius: 12px; padding: 14px 16px; text-align: left; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .sum-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; gap: 8px; }
+  .sum-row:last-child { border-bottom: none; }
+  .sum-label { color: #888; flex-shrink: 0; }
+  .sum-val { text-align: right; color: #1a1a1a; font-weight: 500; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e7eb; display: flex; z-index: 100; max-width: 480px; margin: 0 auto; padding-bottom: env(safe-area-inset-bottom); }
+  .nav-item { flex: 1; padding: 10px 4px 8px; text-align: center; cursor: pointer; font-size: 10px; color: #888; }
+  .nav-item.active { color: #b45309; }
+  .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+  .screen-with-nav { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .history-item { background: white; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.07); cursor: pointer; }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .badge-ok { background: #d1fae5; color: #065f46; }
+  .badge-active { background: #FEF3C0; color: #92400e; }
+  .loader { display: none; text-align: center; padding: 16px; color: #888; font-size: 14px; }
+  .loader.active { display: block; }
+  .alert-yellow { background: #fffbeb; border: 1px solid #F5C000; border-radius: 10px; padding: 11px 13px; font-size: 13px; color: #78350f; margin-bottom: 12px; }
+  .fout-box { display: none; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px 13px; font-size: 13px; color: #dc2626; margin-bottom: 10px; }
+  .edit-section { background: white; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .edit-section-title { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+  .pin-btn { background: white; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 22px; font-weight: 500; padding: 16px; cursor: pointer; color: #1a1a1a; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-family: inherit; width: 100%; }
+  .pin-btn:active { background: #FEF3C0; border-color: #F5C000; transform: scale(0.95); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+</head>
+<body>
+<div style="max-width:480px;margin:0 auto;position:relative;min-height:100vh;">
+
+<div class="app-header">
+  <img src="data:image/png;base64,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" alt="Vink Kunststoffen" />
+  <span class="app-header-sub" id="header-sub">Ritregistratie</span>
+  <span style="font-size:10px;color:#2a2a2a;opacity:0.5;margin-left:6px;">v3.0</span>
+</div>
+
+<!-- INLOGGEN (naam + pin op één scherm) -->
+<div class="screen active" id="screen-register">
+  <div style="padding-top:32px;text-align:center;margin-bottom:24px;">
+    <p style="font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">Inloggen</p>
+    <p style="font-size:14px;color:#666;">Vul je naam en pincode in</p>
+    <p style="font-size:11px;color:#bbb;margin-top:4px;">Versie 3.0 · Mei 2026</p>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Jouw naam</label>
+    <input type="text" id="reg-naam" placeholder="Jan de Vries" style="font-size:18px;padding:14px;" />
+  </div>
+  <div class="form-group" style="margin-top:16px;">
+    <label class="form-label">Pincode</label>
+    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:12px;">
+      <div id="dot-1" style="width:16px;height:16px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:all 0.15s;"></div>
+      <div id="dot-2" style="width:16px;height:16px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:all 0.15s;"></div>
+      <div id="dot-3" style="width:16px;height:16px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:all 0.15s;"></div>
+      <div id="dot-4" style="width:16px;height:16px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:all 0.15s;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;">
+      <button class="pin-btn" onclick="pinDruk('1')">1</button>
+      <button class="pin-btn" onclick="pinDruk('2')">2</button>
+      <button class="pin-btn" onclick="pinDruk('3')">3</button>
+      <button class="pin-btn" onclick="pinDruk('4')">4</button>
+      <button class="pin-btn" onclick="pinDruk('5')">5</button>
+      <button class="pin-btn" onclick="pinDruk('6')">6</button>
+      <button class="pin-btn" onclick="pinDruk('7')">7</button>
+      <button class="pin-btn" onclick="pinDruk('8')">8</button>
+      <button class="pin-btn" onclick="pinDruk('9')">9</button>
+      <button class="pin-btn" onclick="pinWis()" style="font-size:13px;background:#f3f4f6;">Wis</button>
+      <button class="pin-btn" onclick="pinDruk('0')">0</button>
+      <button class="pin-btn" onclick="pinTerug()" style="font-size:18px;background:#f3f4f6;">←</button>
+    </div>
+  </div>
+  <div class="fout-box" id="naam-fout" style="display:none;">Naam of pincode onjuist. Probeer opnieuw.</div>
+  <div class="fout-box" id="pin-fout" style="display:none;">Naam of pincode onjuist. Probeer opnieuw.</div>
+  <div class="fout-box" id="pin-blokkeer" style="display:none;">Te veel foute pogingen. Wacht 5 minuten.</div>
+  <div class="loader" id="loader-naam" style="display:none;">Inloggen... ⏳</div>
+  <div class="loader" id="pin-laden" style="display:none;">Ritten ophalen... ⏳</div>
+  <button class="btn btn-primary" id="btn-naam" onclick="controleerInloggen()" style="margin-top:16px;">Inloggen →</button>
+</div>
+
+<!-- SCHERM-PIN blijft leeg voor compatibiliteit -->
+<div class="screen" id="screen-pin" style="display:none;">
+  <div id="pin-naam-label"></div>
+  <div id="pin-avatar"></div>
+</div>
+
+<!-- HOME -->
+<div class="screen screen-with-nav" id="screen-home">
+  <div style="margin-top:8px;">
+    <div class="card welcome-card">
+      <div class="avatar" id="avatar-initials">JV</div>
+      <div>
+        <p style="font-size:15px;font-weight:600;color:#1a1a1a;" id="welcome-name">Welkom</p>
+        <p style="font-size:12px;color:#888;">Registreren ritten</p>
+      </div>
+    </div>
+    <div class="active-banner" id="active-banner" style="display:none;">
+      <div class="pulse"></div>
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#15803d;" id="banner-text">Rit actief</p>
+        <p style="font-size:11px;color:#16a34a;">Scan de QR-code in de cabine om de rit af te sluiten</p>
+      </div>
+    </div>
+    <div class="scan-grid">
+      <div class="scan-card" onclick="openCamera('start')">
+        <div class="scan-icon">▶</div>
+        <div class="scan-card-title">Rit beginnen</div>
+        <div class="scan-card-sub">Tik om QR-code te scannen</div>
+      </div>
+
+      <div class="scan-card" onclick="openCamera('einde')">
+        <div class="scan-icon">■</div>
+        <div class="scan-card-title">Rit beëindigen</div>
+        <div class="scan-card-sub">Tik om QR-code te scannen</div>
+      </div>
+    </div>
+    <div class="section-label" style="margin-top:16px;">In elke cabine hangt één QR-code</div>
+    <div class="info-card">
+      <div class="info-row">
+        <div style="width:36px;height:36px;border-radius:6px;background:#1a1a1a;color:white;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">QR</div>
+        <div><p style="font-size:13px;font-weight:600;">Eerste scan — Rit starten</p><p style="font-size:11px;color:#888;">Scan bij vertrek · tijd wordt automatisch geregistreerd</p></div>
+      </div>
+      <div class="info-row">
+        <div style="width:36px;height:36px;border-radius:6px;background:#1a1a1a;color:white;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">QR</div>
+        <div><p style="font-size:13px;font-weight:600;">Tweede scan — Rit afsluiten</p><p style="font-size:11px;color:#888;">Scan bij terugkomst · km-stand + liters invullen</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EINDE TRUCKS -->
+<div class="screen screen-with-nav" id="screen-einde-trucks">
+  <div style="margin-top:8px;">
+    <p style="font-size:13px;color:#666;margin-bottom:10px;">Kies jouw vrachtwagen</p>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Zoek op nummer of kenteken..." oninput="filterTrucks(this.value)" id="search-einde" />
+    </div>
+    <div class="truck-list" id="einde-truck-list"></div>
+    <button class="btn btn-secondary" onclick="goScreen('screen-home')" style="margin-top:4px;">← Terug</button>
+  </div>
+</div>
+
+<!-- BEGIN: KM-STAND INVOER -->
+<div class="screen" id="screen-start-done">
+  <div style="margin-top:8px;">
+    <div class="truck-sel">
+      <span style="font-size:20px;">🚛</span>
+      <div style="flex:1;">
+        <p style="font-size:14px;font-weight:600;color:#1a1a1a;" id="start-truck-label">—</p>
+        <p style="font-size:11px;color:#888;" id="start-tijd-label">Gestart om —</p>
+      </div>
+      <span class="badge badge-active">Rit gestart</span>
+    </div>
+    <div class="section-label">Km-stand begin</div>
+    <div class="field-card">
+      <div class="field-card-label">Huidige km-stand</div>
+      <input type="number" id="km-start" placeholder="bijv. 84220" />
+    </div>
+    <div class="loader" id="loader-start">Opslaan... ⏳</div>
+    <button class="btn btn-primary" id="btn-start-km" onclick="submitStart()">Opslaan en doorgaan →</button>
+  </div>
+</div>
+
+<!-- EINDE FORM -->
+<div class="screen screen-with-nav" id="screen-einde-form">
+  <div style="margin-top:8px;">
+    <div class="truck-sel">
+      <span style="font-size:20px;">🚛</span>
+      <div style="flex:1;">
+        <p style="font-size:14px;font-weight:600;color:#1a1a1a;" id="einde-truck-label">—</p>
+        <p style="font-size:11px;color:#888;" id="einde-start-label">Gestart om —</p>
+      </div>
+      <span class="badge badge-active">Rit afsluiten</span>
+    </div>
+    <div class="section-label">Km-stand einde</div>
+    <div class="field-card">
+      <div class="field-card-label">Huidige km-stand</div>
+      <input type="number" id="km-einde" placeholder="bijv. 84940" />
+    </div>
+    <div class="section-label">Brandstof</div>
+    <div class="field-card" style="max-width:55%;">
+      <div class="field-card-label">Getankt (liters)</div>
+      <input type="number" id="f-l" placeholder="0" />
+    </div>
+    <div class="section-label">Opmerking</div>
+    <textarea id="opmerking" placeholder="Optioneel — vertraging, schade, bijzonderheden..." style="margin-bottom:8px;border-radius:12px;padding:13px;border:1px solid #e5e7eb;width:100%;font-family:inherit;font-size:14px;resize:none;height:76px;background:white;"></textarea>
+    <div class="accordion" id="accordion-extra">
+      <div class="accordion-header" onclick="toggleAccordion('accordion-extra')">
+        <div class="accordion-title">⊞ Extra werk gedaan? <span class="acc-count" id="acc-count">0</span></div>
+        <span class="acc-chevron">▼</span>
+      </div>
+      <div class="accordion-body">
+        <div class="cb-list" id="cb-list-einde">
+          <div class="cb-item" onclick="toggleCb(this,'einde')" data-val="Vrachtwagen zelf laden"><div class="cb-box"></div><span class="cb-label">Vrachtwagen zelf laden</span></div>
+          <div class="cb-item" onclick="toggleCb(this,'einde')" data-val="Pallets naar opslag brengen/halen"><div class="cb-box"></div><span class="cb-label">Pallets naar opslag brengen/halen</span></div>
+          <div class="cb-item" onclick="toggleCb(this,'einde')" data-val="Hout afvoeren"><div class="cb-box"></div><span class="cb-label">Hout afvoeren</span></div>
+          <div class="cb-item" onclick="toggleCb(this,'einde')" data-val="Vrachtwagens wassen"><div class="cb-box"></div><span class="cb-label">Vrachtwagens wassen</span></div>
+          <div class="cb-item" onclick="toggleCb(this,'einde')" data-val="2e rit"><div class="cb-box"></div><span class="cb-label">2e rit</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="loader" id="loader-einde">Opslaan... ⏳</div>
+    <button class="btn btn-primary" id="btn-einde" onclick="submitEinde()">Rit afsluiten →</button>
+    <button class="btn btn-secondary" onclick="goScreen('screen-home')">← Terug</button>
+  </div>
+</div>
+
+<!-- EINDE BEVESTIGING -->
+<div class="screen" id="screen-einde-done">
+  <div class="success-wrap">
+    <div class="success-icon">✓</div>
+    <p style="font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">Rit afgerond!</p>
+    <p style="font-size:13px;color:#666;margin-bottom:20px;">Opgeslagen in Google Sheets.</p>
+    <div class="summary-card">
+      <div class="sum-row"><span class="sum-label">Chauffeur</span><span class="sum-val" id="s-chauffeur">—</span></div>
+      <div class="sum-row"><span class="sum-label">Vrachtwagen</span><span class="sum-val" id="s-truck">—</span></div>
+      <div class="sum-row"><span class="sum-label">Datum</span><span class="sum-val" id="s-datum">—</span></div>
+      <div class="sum-row"><span class="sum-label">Rijtijd</span><span class="sum-val" id="s-rijtijd">—</span></div>
+      <div class="sum-row"><span class="sum-label">Afstand</span><span class="sum-val" id="s-afstand">—</span></div>
+      <div class="sum-row"><span class="sum-label">Km-stand einde</span><span class="sum-val" id="s-km">—</span></div>
+      <div class="sum-row"><span class="sum-label">Getankt</span><span class="sum-val" id="s-fuel">—</span></div>
+      <div class="sum-row" id="s-extra-row" style="display:none;"><span class="sum-label">Extra werk</span><span class="sum-val" id="s-extra" style="font-size:12px;"></span></div>
+      <div class="sum-row" id="s-opm-row" style="display:none;"><span class="sum-label">Opmerking</span><span class="sum-val" id="s-opm" style="font-size:12px;font-style:italic;"></span></div>
+    </div>
+    <button class="btn btn-primary" onclick="goScreen('screen-home')" style="width:100%;">Terug naar home</button>
+  </div>
+</div>
+
+<!-- MIJN RITTEN -->
+<div class="screen screen-with-nav" id="screen-ritten">
+  <div style="margin-top:8px;">
+    <p style="font-size:13px;color:#666;margin-bottom:10px;" id="ritten-naam">Recente ritten</p>
+    <div id="ritten-list"><p style="font-size:13px;color:#aaa;text-align:center;padding:20px;">Nog geen ritten geregistreerd.</p></div>
+  </div>
+</div>
+
+<!-- RIT BEWERKEN -->
+<div class="screen screen-with-nav" id="screen-edit">
+  <div style="margin-top:8px;">
+    <p style="font-size:13px;color:#666;margin-bottom:12px;">Laatste afgeronde rit aanpassen</p>
+    <div class="edit-section">
+      <div class="edit-section-title">Tijden</div>
+      <div class="two-col">
+        <div class="form-group"><label class="form-label">Starttijd</label><input type="time" id="edit-starttijd" /></div>
+        <div class="form-group"><label class="form-label">Eindtijd</label><input type="time" id="edit-eindtijd" /></div>
+      </div>
+    </div>
+    <div class="edit-section">
+      <div class="edit-section-title">Km-stand</div>
+      <div class="two-col">
+        <div class="form-group"><label class="form-label">Begin km</label><input type="number" id="edit-km-start" placeholder="bijv. 84220" /></div>
+        <div class="form-group"><label class="form-label">Eind km</label><input type="number" id="edit-km-einde" placeholder="bijv. 84580" /></div>
+      </div>
+    </div>
+    <div class="edit-section">
+      <div class="edit-section-title">Brandstof</div>
+      <div class="form-group" style="max-width:55%;"><label class="form-label">Getankt (liters)</label><input type="number" id="edit-liters" placeholder="0" /></div>
+    </div>
+    <div class="edit-section">
+      <div class="edit-section-title">Opmerking</div>
+      <textarea id="edit-opmerking" placeholder="Optioneel..."></textarea>
+    </div>
+    <div class="accordion" id="accordion-edit">
+      <div class="accordion-header" onclick="toggleAccordion('accordion-edit')">
+        <div class="accordion-title">⊞ Extra werk <span class="acc-count" id="acc-count-edit">0</span></div>
+        <span class="acc-chevron">▼</span>
+      </div>
+      <div class="accordion-body">
+        <div class="cb-list" id="cb-list-edit">
+          <div class="cb-item" onclick="toggleCb(this,'edit')" data-val="Vrachtwagen zelf laden"><div class="cb-box"></div><span class="cb-label">Vrachtwagen zelf laden</span></div>
+          <div class="cb-item" onclick="toggleCb(this,'edit')" data-val="Pallets naar opslag brengen/halen"><div class="cb-box"></div><span class="cb-label">Pallets naar opslag brengen/halen</span></div>
+          <div class="cb-item" onclick="toggleCb(this,'edit')" data-val="Hout afvoeren"><div class="cb-box"></div><span class="cb-label">Hout afvoeren</span></div>
+          <div class="cb-item" onclick="toggleCb(this,'edit')" data-val="Vrachtwagens wassen"><div class="cb-box"></div><span class="cb-label">Vrachtwagens wassen</span></div>
+          <div class="cb-item" onclick="toggleCb(this,'edit')" data-val="2e rit"><div class="cb-box"></div><span class="cb-label">2e rit</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="loader" id="loader-edit">Opslaan... ⏳</div>
+    <button class="btn btn-primary" id="btn-edit" onclick="submitEdit()">Wijzigingen opslaan →</button>
+    <button class="btn btn-secondary" onclick="goScreen('screen-ritten')">← Terug</button>
+  </div>
+</div>
+
+<!-- PROFIEL -->
+<div class="screen screen-with-nav" id="screen-profiel">
+  <div style="margin-top:8px;">
+    <div class="card" style="display:flex;align-items:center;gap:14px;">
+      <div class="avatar" style="width:52px;height:52px;font-size:18px;" id="profiel-avatar">JV</div>
+      <div>
+        <p style="font-size:16px;font-weight:700;" id="profiel-naam">—</p>
+        <p style="font-size:12px;color:#888;" id="profiel-tel">—</p>
+      </div>
+    </div>
+    <div class="section-label">Over deze app</div>
+    <div class="card"><p style="font-size:13px;color:#666;line-height:1.6;">Vink Kunststoffen Ritregistratie<br><strong>Versie 3.0 · Mei 2026</strong><br>Data opgeslagen in Google Sheets.</p></div>
+    <button class="btn btn-danger" onclick="uitloggen()" style="margin-top:8px;">Uitloggen</button>
+  </div>
+</div>
+
+<!-- QR SCANNER -->
+<div class="screen" id="screen-qr">
+  <div style="margin-top:8px;">
+    <p style="font-size:13px;color:#666;margin-bottom:10px;" id="qr-instructie">Richt de camera op de QR-code in de cabine</p>
+    <div style="position:relative;width:100%;max-width:448px;margin:0 auto 12px;border-radius:12px;overflow:hidden;background:#000;">
+      <video id="qr-video" style="width:100%;display:block;" playsinline autoplay muted></video>
+      <canvas id="qr-canvas" style="display:none;"></canvas>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+        <div style="width:220px;height:220px;border:3px solid #F5C000;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,0.45);"></div>
+      </div>
+    </div>
+    <div class="fout-box" id="qr-fout" style="display:none;">QR-code niet herkend. Probeer opnieuw.</div>
+    <button class="btn btn-secondary" onclick="sluitCamera()" style="margin-top:4px;">← Annuleren</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav" style="display:none;">
+  <div class="nav-item active" id="nav-home" onclick="navTo('screen-home','nav-home')"><span class="nav-icon">🏠</span>Home</div>
+  <div class="nav-item" id="nav-ritten" onclick="navTo('screen-ritten','nav-ritten')"><span class="nav-icon">📋</span>Mijn ritten</div>
+  <div class="nav-item" id="nav-profiel" onclick="navTo('screen-profiel','nav-profiel')"><span class="nav-icon">👤</span>Profiel</div>
+</div>
+
+</div>
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxM9wl58jh3NUpsPmqhkWmVSRbID1bvh54GrosOnVK58x43QkZGEJV1pjW9nE3B5juWBA/exec';
+
+const TRUCKS = [
+  {nr:'713',plate:'79-BLH-1'},{nr:'714',plate:'95-BKP-1'},{nr:'715',plate:'78-BLH-1'},
+  {nr:'800',plate:'VJ-708-G'},{nr:'802',plate:'V-30-HHZ'},{nr:'803',plate:'68-BJJ-2'},
+  {nr:'804',plate:'84-BJL-8'},{nr:'805',plate:'555-BJV-1'},{nr:'806',plate:'51-BKX-8'},
+  {nr:'807',plate:'06-BLB-8'},{nr:'808',plate:'73-BLJ-1'},{nr:'809',plate:'51-BRV-3'},
+  {nr:'810',plate:'81-BSF-4'},{nr:'811',plate:'65-BVV-8'},{nr:'812',plate:'29-BRK-7'},
+  {nr:'813',plate:'72-BXK-4'},{nr:'816',plate:'24-BVL-2'},{nr:'901',plate:'BB-098-X'},
+];
+
+// ── Opslag (localStorage + cookie) ───────────────────────
+function opslaanZet(key, value) {
+  try { localStorage.setItem(key, value); } catch(e) {}
+  try {
+    var exp = new Date(); exp.setFullYear(exp.getFullYear() + 1);
+    document.cookie = key + '=' + encodeURIComponent(value) + ';expires=' + exp.toUTCString() + ';path=/;SameSite=Lax';
+  } catch(e) {}
+}
+function opslaanHaal(key) {
+  try { var ls = localStorage.getItem(key); if (ls) return ls; } catch(e) {}
+  try {
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i].trim();
+      if (c.startsWith(key + '=')) return decodeURIComponent(c.substring(key.length + 1));
+    }
+  } catch(e) {}
+  return null;
+}
+function opslaanVerwijder(key) {
+  try { localStorage.removeItem(key); } catch(e) {}
+  try { document.cookie = key + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;'; } catch(e) {}
+}
+
+// ── State ─────────────────────────────────────────────────
+let user = null, activeRit = null, rittenCache = [];
+let activeTruck_saved = '', activePlate_saved = '', activeStartTime_saved = '';
+let activeTruck = '', activePlate = '', activeStartTime = '';
+let loginNaam = '', loginPin = '', pinPogingen = 0, pinGeblokkeerd = false;
+let editRijIndex = -1;
+
+try { user = JSON.parse(opslaanHaal('vink_user') || 'null'); } catch(e) {}
+try { activeRit = JSON.parse(opslaanHaal('vink_active') || 'null'); } catch(e) {}
+try { rittenCache = JSON.parse(opslaanHaal('vink_ritten') || '[]'); } catch(e) {}
+
+// ── Helpers ───────────────────────────────────────────────
+function now() {
+  var d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function today() {
+  var d = new Date();
+  return d.toLocaleDateString('nl-NL', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function initials(naam) {
+  return (naam||'').split(' ').filter(Boolean).map(function(w){return w[0];}).join('').toUpperCase().slice(0,2) || '?';
+}
+
+// ── Navigatie ─────────────────────────────────────────────
+function goScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  var labels = {
+    'screen-register':'Inloggen','screen-pin':'Pincode',
+    'screen-home':'Home','screen-einde-trucks':'Rit beëindigen',
+    'screen-start-done':'Gestart','screen-einde-form':'Rit afsluiten',
+    'screen-einde-done':'Afgerond','screen-ritten':'Mijn ritten',
+    'screen-edit':'Rit aanpassen','screen-profiel':'Profiel','screen-qr':'QR Scannen'
+  };
+  document.getElementById('header-sub').textContent = labels[id] || '';
+  if (id === 'screen-einde-trucks') { renderTrucks(''); document.getElementById('search-einde').value = ''; }
+  if (id === 'screen-ritten') renderRitten();
+}
+function navTo(screen, navId) {
+  goScreen(screen);
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  document.getElementById(navId).classList.add('active');
+}
+
+// ── Ritten ophalen uit Sheets ─────────────────────────────
+function haalRittenOp(naam, callback) {
+  fetch(SCRIPT_URL + '?type=haal_ritten&naam=' + encodeURIComponent(naam))
+    .then(function(r) { return r.json(); })
+    .then(function(resp) {
+      if (resp.ritten && Array.isArray(resp.ritten)) {
+        // Sheets geeft nieuwste eerst terug — omkeren zodat nieuwste op hoogste index staat
+        rittenCache = resp.ritten.slice().reverse();
+        opslaanZet('vink_ritten', JSON.stringify(rittenCache));
+      }
+      if (callback) callback();
+    })
+    .catch(function() {
+      // Bij geen verbinding: laad lokale cache als fallback
+      try { rittenCache = JSON.parse(opslaanHaal('vink_ritten') || '[]'); } catch(e) { rittenCache = []; }
+      if (callback) callback();
+    });
+}
+
+// ── Login: naam ───────────────────────────────────────────
+function controleerNaam() { controleerInloggen(); } // backwards compat
+
+function controleerInloggen() {
+  var naam = document.getElementById('reg-naam').value.trim();
+  if (!naam) { alert('Vul je naam in'); return; }
+  if (loginPin.length < 4) { alert('Vul je 4-cijferige pincode in'); return; }
+  if (pinGeblokkeerd) return;
+
+  document.getElementById('naam-fout').style.display = 'none';
+  document.getElementById('pin-fout').style.display = 'none';
+  document.getElementById('btn-naam').disabled = true;
+  document.getElementById('loader-naam').style.display = 'block';
+
+  // Één aanroep voor naam + pin
+  fetch(SCRIPT_URL + '?type=inloggen&naam=' + encodeURIComponent(naam) + '&pin=' + encodeURIComponent(loginPin))
+    .then(function(r) { return r.json(); })
+    .then(function(resp) {
+      document.getElementById('btn-naam').disabled = false;
+      document.getElementById('loader-naam').style.display = 'none';
+
+      if (resp.status === 'ok') {
+        pinPogingen = 0;
+        loginNaam = naam;
+        user = { naam: naam, tel: resp.telefoon || '' };
+        opslaanZet('vink_user', JSON.stringify(user));
+        document.getElementById('loader-naam').style.display = 'none';
+        document.getElementById('pin-laden').style.display = 'block';
+        haalRittenOp(naam, function() {
+          document.getElementById('pin-laden').style.display = 'none';
+          initUser();
+          document.getElementById('bottom-nav').style.display = 'flex';
+          goScreen('screen-home');
+        });
+      } else {
+        pinPogingen++;
+        loginPin = '';
+        updatePinDots();
+        if (pinPogingen >= 3) {
+          pinGeblokkeerd = true;
+          document.getElementById('pin-blokkeer').style.display = 'block';
+          document.getElementById('naam-fout').style.display = 'none';
+          setTimeout(function() {
+            pinGeblokkeerd = false; pinPogingen = 0;
+            document.getElementById('pin-blokkeer').style.display = 'none';
+          }, 5 * 60 * 1000);
+        } else {
+          document.getElementById('naam-fout').style.display = 'block';
+        }
+      }
+    })
+    .catch(function() {
+      document.getElementById('btn-naam').disabled = false;
+      document.getElementById('loader-naam').style.display = 'none';
+      alert('Geen verbinding. Controleer je internet.');
+    });
+}
+
+// ── Login: pin ────────────────────────────────────────────
+function pinDruk(cijfer) {
+  if (pinGeblokkeerd) return;
+  if (loginPin.length >= 4) return;
+  loginPin += cijfer;
+  updatePinDots();
+  if (loginPin.length === 4) setTimeout(controleerPin, 200);
+}
+function pinTerug() { loginPin = loginPin.slice(0,-1); updatePinDots(); }
+function pinWis() {
+  loginPin = '';
+  updatePinDots();
+  document.getElementById('pin-fout').style.display = 'none';
+  document.getElementById('pin-blokkeer').style.display = 'none';
+}
+function updatePinDots() {
+  for (var i = 1; i <= 4; i++) {
+    var dot = document.getElementById('dot-' + i);
+    dot.style.background = i <= loginPin.length ? '#F5C000' : '#e5e7eb';
+    dot.style.borderColor = i <= loginPin.length ? '#F5C000' : '#d1d5db';
+  }
+}
+// controleerPin vervangen door controleerInloggen
+
+// ── User init ─────────────────────────────────────────────
+function initUser() {
+  if (!user) return;
+  document.getElementById('welcome-name').textContent = 'Welkom, ' + user.naam.split(' ')[0];
+  document.getElementById('avatar-initials').textContent = initials(user.naam);
+  document.getElementById('profiel-naam').textContent = user.naam;
+  document.getElementById('profiel-tel').textContent = user.tel || '';
+  document.getElementById('profiel-avatar').textContent = initials(user.naam);
+  document.getElementById('ritten-naam').textContent = 'Recente ritten — ' + user.naam.split(' ')[0];
+  if (activeRit) {
+    activeTruck = activeRit.truck; activePlate = activeRit.plate; activeStartTime = activeRit.startTime;
+    document.getElementById('active-banner').style.display = 'flex';
+    document.getElementById('banner-text').textContent = 'Rit actief: ' + activeTruck + ' · gestart ' + activeStartTime;
+  }
+}
+
+// ── Trucks ────────────────────────────────────────────────
+function renderTrucks(filter) {
+  var el = document.getElementById('einde-truck-list');
+  if (!el) return;
+  var q = filter.toLowerCase();
+  var list = TRUCKS.filter(function(t){ return t.nr.includes(q) || t.plate.toLowerCase().includes(q); });
+  el.innerHTML = list.map(function(t) {
+    return '<div class="truck-item" onclick="doEinde(\'' + t.nr + '\',\'' + t.plate + '\')">' +
+      '<div><div class="truck-nr">' + t.nr + '</div><div class="truck-plate">' + t.plate + '</div></div>' +
+      '<span style="font-size:13px;font-weight:600;color:#1a1a1a;">Selecteer →</span></div>';
+  }).join('');
+}
+function filterTrucks(val) { renderTrucks(val); }
+
+// ── Rit starten (alleen via QR) ───────────────────────────
+// ── Camera openen voor QR-scan ───────────────────────────
+
+
+// ── Scan QR: start of einde op basis van actieve rit chauffeur ──
+function scanQR(nr, plate) {
+  if (activeRit && activeRit.truck) {
+    if (activeRit.truck === nr) {
+      // Zelfde vrachtwagen — direct naar einde formulier
+      doEinde(activeRit.truck, activeRit.plate);
+    } else {
+      // Andere vrachtwagen — melding tonen
+      if (confirm('Je hebt nog een actieve rit met vrachtwagen ' + activeRit.truck + ' (gestart om ' + activeRit.startTime + ').\n\nSluit eerst die rit af voor je een nieuwe rit start.\n\nDruk OK om de actieve rit nu af te sluiten.')) {
+        doEinde(activeRit.truck, activeRit.plate);
+      } else {
+        goScreen('screen-home');
+      }
+    }
+  } else {
+    doStart(nr, plate);
+  }
+}
+
+function doStart(nr, plate) {
+  activeTruck = nr; activePlate = plate;
+  activeStartTime = now();
+  activeRit = { truck: nr, plate: plate, startTime: activeStartTime };
+  opslaanZet('vink_active', JSON.stringify(activeRit));
+
+  // Toon km-start invoer scherm
+  document.getElementById('start-truck-label').textContent = nr + ' · ' + plate;
+  document.getElementById('start-tijd-label').textContent = 'Gestart om ' + activeStartTime;
+  document.getElementById('km-start').value = '';
+  document.getElementById('active-banner').style.display = 'flex';
+  document.getElementById('banner-text').textContent = 'Rit actief: ' + nr + ' · gestart ' + activeStartTime;
+  goScreen('screen-start-done');
+}
+
+// ── Km-stand begin opslaan ────────────────────────────────
+function submitStart() {
+  var kmStart = document.getElementById('km-start').value;
+  if (!kmStart) { alert('Vul de km-stand in'); return; }
+
+  var payload = {
+    type: 'start',
+    datum: today(),
+    chauffeur: user ? user.naam : '',
+    voertuig_nr: activeTruck,
+    kenteken: activePlate,
+    starttijd: activeStartTime,
+    km_start: kmStart
+  };
+
+  rittenCache.push(Object.assign({}, payload, { status: 'In uitvoering', eindtijd: '', km_einde: '', liters: '', extra_werk: '', opmerking: '' }));
+  opslaanZet('vink_ritten', JSON.stringify(rittenCache));
+
+  // Direct doorgaan — opslaan naar Sheets op achtergrond
+  goScreen('screen-home');
+  stuurNaarSheets(payload, function(ok) {
+    if (!ok) console.log('Rit start in wachtrij opgeslagen.');
+  });
+}
+
+// ── Rit beëindigen ────────────────────────────────────────
+function eindeKlik() {
+  if (activeRit && activeRit.truck) {
+    doEinde(activeRit.truck, activeRit.plate);
+  } else {
+    alert('Geen actieve rit. Scan de QR-code in de cabine van jouw vrachtwagen om een rit te starten.');
+  }
+}
+function doEinde(nr, plate) {
+  activeTruck = nr; activePlate = plate;
+  document.getElementById('einde-truck-label').textContent = nr + ' · ' + plate;
+  document.getElementById('einde-start-label').textContent = 'Gestart om ' + (activeStartTime || '—');
+  document.getElementById('km-einde').value = '';
+  document.getElementById('f-l').value = '';
+  document.getElementById('opmerking').value = '';
+  document.querySelectorAll('#cb-list-einde .cb-item').forEach(function(el){ el.classList.remove('selected'); el.querySelector('.cb-box').textContent = ''; });
+  var acc = document.getElementById('accordion-extra');
+  acc.classList.remove('open','has-items');
+  document.getElementById('acc-count').textContent = '0';
+  goScreen('screen-einde-form');
+}
+
+// ── Accordion & checkboxen ────────────────────────────────
+function toggleAccordion(id) { document.getElementById(id).classList.toggle('open'); }
+function toggleCb(el, context) {
+  el.classList.toggle('selected');
+  el.querySelector('.cb-box').textContent = el.classList.contains('selected') ? '✓' : '';
+  var listId = context === 'edit' ? 'cb-list-edit' : 'cb-list-einde';
+  var countId = context === 'edit' ? 'acc-count-edit' : 'acc-count';
+  var accId = context === 'edit' ? 'accordion-edit' : 'accordion-extra';
+  var count = document.querySelectorAll('#' + listId + ' .cb-item.selected').length;
+  document.getElementById(countId).textContent = count;
+  document.getElementById(accId).classList.toggle('has-items', count > 0);
+}
+
+// ── Rit opslaan ───────────────────────────────────────────
+function submitEinde() {
+  var ke = document.getElementById('km-einde').value;
+  var fl = document.getElementById('f-l').value;
+  var opm = document.getElementById('opmerking').value.trim();
+  var selected = Array.from(document.querySelectorAll('#cb-list-einde .cb-item.selected')).map(function(el){ return el.dataset.val; });
+  var eindTijd = now();
+
+  var payload = { type: 'einde', voertuig_nr: activeTruck, eindtijd: eindTijd, km_einde: ke||'', liters: fl||'', extra_werk: selected.join(', '), opmerking: opm };
+
+  for (var i = rittenCache.length - 1; i >= 0; i--) {
+    if (rittenCache[i].voertuig_nr === activeTruck && rittenCache[i].status === 'In uitvoering') {
+      rittenCache[i] = Object.assign({}, rittenCache[i], { eindtijd: eindTijd, km_einde: ke, liters: fl, extra_werk: selected.join(', '), opmerking: opm, status: 'Afgerond' });
+      break;
+    }
+  }
+  opslaanZet('vink_ritten', JSON.stringify(rittenCache));
+
+  // Wis activeRit direct
+  activeRit = null;
+  activeTruck_saved = activeTruck;
+  activePlate_saved = activePlate;
+  activeStartTime_saved = activeStartTime;
+  opslaanVerwijder('vink_active');
+  activeStartTime = '';
+  document.getElementById('active-banner').style.display = 'none';
+
+  // Direct naar bevestigingsscherm — Sheets op achtergrond
+  toonSamenvatting(ke, fl, eindTijd, selected, opm);
+  goScreen('screen-einde-done');
+  stuurNaarSheets(payload, function(ok) {
+    if (!ok) console.log('Rit einde in wachtrij opgeslagen.');
+  });
+}
+
+function toonSamenvatting(ke, fl, eindTijd, selected, opm) {
+  document.getElementById('s-chauffeur').textContent = user ? user.naam : '—';
+  document.getElementById('s-truck').textContent = (activeTruck_saved||activeTruck) + ' · ' + (activePlate_saved||activePlate);
+  document.getElementById('s-datum').textContent = today();
+  // Rijtijd: toon start–eind als beide bekend, anders alleen eindtijd
+  var startTijd = activeStartTime_saved || activeStartTime;
+  if (startTijd) {
+    document.getElementById('s-rijtijd').textContent = startTijd + ' – ' + eindTijd;
+  } else {
+    document.getElementById('s-rijtijd').textContent = 'Einde: ' + eindTijd;
+  }
+
+  // Bereken afstand
+  try {
+    var kmStartVal = null;
+    for (var i = rittenCache.length - 1; i >= 0; i--) {
+      if (rittenCache[i].voertuig_nr === activeTruck && rittenCache[i].km_start) {
+        kmStartVal = parseInt(rittenCache[i].km_start);
+        break;
+      }
+    }
+    if (kmStartVal && ke && parseInt(ke) > kmStartVal) {
+      document.getElementById('s-afstand').textContent = (parseInt(ke) - kmStartVal) + ' km';
+    } else {
+      document.getElementById('s-afstand').textContent = '—';
+    }
+  } catch(e) { document.getElementById('s-afstand').textContent = '—'; }
+
+  document.getElementById('s-km').textContent = ke ? ke + ' km' : '—';
+  document.getElementById('s-fuel').textContent = fl ? fl + ' L' : '—';
+  var sE = document.getElementById('s-extra-row');
+  if (selected.length > 0) { sE.style.display='flex'; document.getElementById('s-extra').textContent = selected.join(', '); } else { sE.style.display='none'; }
+  var sO = document.getElementById('s-opm-row');
+  if (opm) { sO.style.display='flex'; document.getElementById('s-opm').textContent = '"' + opm + '"'; } else { sO.style.display='none'; }
+}
+
+// ── Ritten lijst ──────────────────────────────────────────
+function renderRitten() {
+  var el = document.getElementById('ritten-list');
+  if (rittenCache.length === 0) { el.innerHTML = '<p style="font-size:13px;color:#aaa;text-align:center;padding:20px;">Nog geen ritten geregistreerd.</p>'; return; }
+  var recent = rittenCache.slice().reverse().slice(0, 10);
+  // Zoek de meest recente afgeronde rit in de volledige cache
+  var laatsteAfgerondIdx = -1;
+  for (var j = rittenCache.length - 1; j >= 0; j--) {
+    if (rittenCache[j].status === 'Afgerond') { laatsteAfgerondIdx = j; break; }
+  }
+  el.innerHTML = recent.map(function(r, i) {
+    var idx = rittenCache.length - 1 - i;
+    var isLast = idx === laatsteAfgerondIdx;
+    return '<div class="history-item" onclick="' + (isLast ? 'openEdit(' + idx + ')' : '') + '">' +
+      '<div><p style="font-size:14px;font-weight:600;">' + (r.datum||'—') + ' · ' + (r.voertuig_nr||'—') + '</p>' +
+      '<p style="font-size:12px;color:#888;">' + (r.starttijd||'—') + '–' + (r.eindtijd||'—') + ' · ' + (r.km_einde ? r.km_einde+' km' : '—') +
+      (isLast ? ' · <span style="color:#b45309;">Tik om aan te passen</span>' : '') + '</p></div>' +
+      '<span class="badge ' + (r.status==='Afgerond'?'badge-ok':'badge-active') + '">' + (r.status||'—') + '</span></div>';
+  }).join('');
+}
+
+
+// ── QR Camera ─────────────────────────────────────────────
+var qrStream = null;
+var qrScanMode = 'start'; // 'start' of 'einde'
+var qrAnimFrame = null;
+var qrGescand = false;
+
+function openCamera(mode) {
+  qrScanMode = mode;
+  qrGescand = false;
+  document.getElementById('qr-fout').style.display = 'none';
+  document.getElementById('qr-loader').style.display = 'none';
+  var instructie = mode === 'start' ? 'Scan de QR-code om een rit te starten' : 'Scan de QR-code om de rit af te sluiten';
+  document.getElementById('qr-instructie').textContent = instructie;
+  goScreen('screen-qr');
+
+  var video = document.getElementById('qr-video');
+  var constraints = {
+    video: {
+      facingMode: { ideal: 'environment' }, // achtercamera
+      width: { ideal: 1280 },
+      height: { ideal: 720 }
+    }
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(function(stream) {
+      qrStream = stream;
+      video.srcObject = stream;
+      video.play();
+      video.addEventListener('loadedmetadata', function() {
+        scanFrame();
+      });
+    })
+    .catch(function(err) {
+      document.getElementById('qr-fout').style.display = 'block';
+      document.getElementById('qr-fout').textContent = 'Camera niet beschikbaar: ' + err.message;
+    });
+}
+
+function scanFrame() {
+  if (qrGescand) return;
+  var video = document.getElementById('qr-video');
+  var canvas = document.getElementById('qr-canvas');
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+    qrAnimFrame = requestAnimationFrame(scanFrame);
+    return;
+  }
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  var code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+
+  if (code) {
+    qrGescand = true;
+    sluitCamera();
+    verwerkQRResultaat(code.data);
+  } else {
+    qrAnimFrame = requestAnimationFrame(scanFrame);
+  }
+}
+
+function sluitCamera() {
+  if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame = null; }
+  if (qrStream) {
+    qrStream.getTracks().forEach(function(t) { t.stop(); });
+    qrStream = null;
+  }
+  var video = document.getElementById('qr-video');
+  video.srcObject = null;
+  goScreen('screen-home');
+}
+
+function verwerkQRResultaat(data) {
+  // Verwacht URL met ?truck=NR parameter, of gewoon het voertuignummer
+  var nr = null;
+  try {
+    var url = new URL(data);
+    nr = url.searchParams.get('truck');
+  } catch(e) {
+    // Geen URL — misschien direct het nummer
+    nr = data.trim();
+  }
+  if (!nr) {
+    document.getElementById('qr-fout').style.display = 'block';
+    document.getElementById('qr-fout').textContent = 'Ongeldige QR-code. Probeer opnieuw.';
+    return;
+  }
+  var truck = TRUCKS.find(function(t) { return t.nr === nr; });
+  if (!truck) {
+    document.getElementById('qr-fout').style.display = 'block';
+    document.getElementById('qr-fout').textContent = 'Vrachtwagen ' + nr + ' niet gevonden.';
+    return;
+  }
+  if (qrScanMode === 'einde') {
+    doEinde(truck.nr, truck.plate);
+  } else {
+    scanQR(truck.nr, truck.plate);
+  }
+}
+
+// ── Rit bewerken ──────────────────────────────────────────
+function openEdit(idx) {
+  editRijIndex = idx;
+  var r = rittenCache[idx];
+  if (!r) return;
+  document.getElementById('edit-starttijd').value = r.starttijd || '';
+  document.getElementById('edit-eindtijd').value = r.eindtijd || '';
+  document.getElementById('edit-km-start').value = r.km_start || '';
+  document.getElementById('edit-km-einde').value = r.km_einde || '';
+  document.getElementById('edit-liters').value = r.liters || '';
+  document.getElementById('edit-opmerking').value = r.opmerking || '';
+  document.querySelectorAll('#cb-list-edit .cb-item').forEach(function(el) {
+    el.classList.remove('selected'); el.querySelector('.cb-box').textContent = '';
+  });
+  if (r.extra_werk) {
+    var vals = r.extra_werk.split(', ');
+    document.querySelectorAll('#cb-list-edit .cb-item').forEach(function(el) {
+      if (vals.indexOf(el.dataset.val) >= 0) { el.classList.add('selected'); el.querySelector('.cb-box').textContent = '✓'; }
+    });
+  }
+  var count = document.querySelectorAll('#cb-list-edit .cb-item.selected').length;
+  document.getElementById('acc-count-edit').textContent = count;
+  document.getElementById('accordion-edit').classList.toggle('has-items', count > 0);
+  goScreen('screen-edit');
+}
+
+function submitEdit() {
+  if (editRijIndex < 0) return;
+  var r = rittenCache[editRijIndex];
+  var selected = Array.from(document.querySelectorAll('#cb-list-edit .cb-item.selected')).map(function(el){ return el.dataset.val; });
+  var updates = {
+    type: 'wijzig', voertuig_nr: r.voertuig_nr, chauffeur: user ? user.naam : '',
+    starttijd: document.getElementById('edit-starttijd').value,
+    eindtijd: document.getElementById('edit-eindtijd').value,
+    km_start: document.getElementById('edit-km-start').value,
+    km_einde: document.getElementById('edit-km-einde').value,
+    liters: document.getElementById('edit-liters').value,
+    opmerking: document.getElementById('edit-opmerking').value.trim(),
+    extra_werk: selected.join(', ')
+  };
+  rittenCache[editRijIndex] = Object.assign({}, r, updates);
+  opslaanZet('vink_ritten', JSON.stringify(rittenCache));
+
+  document.getElementById('btn-edit').disabled = true;
+  document.getElementById('loader-edit').classList.add('active');
+
+  stuurNaarSheets(updates, function(ok) {
+    document.getElementById('btn-edit').disabled = false;
+    document.getElementById('loader-edit').classList.remove('active');
+    alert(ok ? 'Wijzigingen opgeslagen!' : 'Lokaal opgeslagen, maar geen verbinding met Sheets.');
+    goScreen('screen-ritten');
+  });
+}
+
+// ── Sheets koppeling ──────────────────────────────────────
+function stuurNaarSheets(payload, callback) {
+  var q = []; try { q = JSON.parse(opslaanHaal('vink_queue') || '[]'); } catch(e) {}
+  payload._id = Date.now();
+  q.push(payload); opslaanZet('vink_queue', JSON.stringify(q));
+
+  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
+    .then(function() {
+      var q2 = []; try { q2 = JSON.parse(opslaanHaal('vink_queue') || '[]'); } catch(e) {}
+      opslaanZet('vink_queue', JSON.stringify(q2.filter(function(x){ return x._id !== payload._id; })));
+      if (callback) callback(true);
+    })
+    .catch(function() {
+      var params = Object.keys(payload).map(function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(payload[k]||''); }).join('&');
+      fetch(SCRIPT_URL + '?' + params, { mode: 'no-cors' })
+        .then(function(){ if (callback) callback(true); })
+        .catch(function(){ if (callback) callback(false); });
+    });
+}
+
+// ── Uitloggen ─────────────────────────────────────────────
+function uitloggen() {
+  if (confirm('Weet je zeker dat je wilt uitloggen?')) {
+    opslaanVerwijder('vink_user');
+    opslaanVerwijder('vink_active');
+    opslaanVerwijder('vink_ritten');
+    opslaanVerwijder('vink_queue');
+    rittenCache = [];
+    user = null;
+    location.reload();
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────
+renderTrucks('');
+
+if (user) {
+  initUser();
+  document.getElementById('bottom-nav').style.display = 'flex';
+  goScreen('screen-home');
+} else {
+  goScreen('screen-register');
+}
+
+// QR parameter via URL (voor backwards compatibility met bestaande QR-codes in cabines)
+var params = new URLSearchParams(window.location.search);
+var qrTruck = params.get('truck');
+if (qrTruck && user) {
+  var truck = TRUCKS.find(function(t){ return t.nr === qrTruck; });
+  if (truck) {
+    scanQR(truck.nr, truck.plate);
+  }
+}
+</script>
+</body>
+</html>
